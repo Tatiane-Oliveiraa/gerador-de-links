@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raiz & Pixel — Gerador de Links</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Plus Jakarta Sans", sans-serif; background: #F9F8F6; color: #1E1E24; }
+    .font-serif { font-family: "Playfair Display", serif; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.5s ease; }
+    @keyframes toastIn { from { opacity:0; transform:translateX(110%); } to { opacity:1; transform:translateX(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateX(110%); } }
+    .toast { animation: toastIn 0.3s ease; }
+    .toast.hide { animation: toastOut 0.3s ease forwards; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<div id="toastContainer" class="fixed top-4 right-4 z-[999] flex flex-col gap-2 pointer-events-none" style="max-width:320px"></div>
+
+<!-- HEADER -->
+<header style="border-bottom:1px solid #E8E6DF; background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); position:sticky; top:0; z-index:50; box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+  <div style="max-width:1024px; margin:0 auto; padding:16px 24px; display:flex; align-items:center; justify-content:space-between;">
+    <a href="/" style="display:flex; align-items:center; gap:12px; text-decoration:none; cursor:pointer;">
+      <img src="assets/logo.png" alt="Raiz & Pixel" style="height:48px; width:48px; border-radius:12px; object-fit:cover; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+      <div>
+        <h1 class="font-serif" style="font-size:20px; font-weight:700; color:#1E1E24; line-height:1.2;">Raiz & Pixel</h1>
+        <p id="headerSub" style="font-size:9px; letter-spacing:0.18em; text-transform:uppercase; font-weight:600; margin-top:2px; color:#D4AF37;">Localização para convites</p>
+      </div>
+    </a>
+    <div id="headerBadge" style="font-size:12px; font-weight:500; display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:999px; border:1px solid #E8E6DF; background:#FDFBF7; color:#D4AF37; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+      <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="hidden sm:inline">Maps e Uber em um único link</span>
+    </div>
+  </div>
+</header>
+<nav style="background:#fff;border-bottom:1px solid #E8E6DF;padding:10px 16px;display:flex;justify-content:center;gap:10px;position:sticky;top:81px;z-index:40;">
+  <button type="button" id="tabLocalizacao" onclick="alternarAba('localizacao')" style="padding:10px 16px;border-radius:10px;border:1px solid #D4AF37;background:#D4AF37;color:#fff;font:600 13px inherit;cursor:pointer;">📍 Link de localização</button>
+  <button type="button" id="tabWhatsApp" onclick="alternarAba('whatsapp')" style="padding:10px 16px;border-radius:10px;border:1px solid #E8E6DF;background:#fff;color:#1E1E24;font:600 13px inherit;cursor:pointer;">💬 Link de WhatsApp</button>
+</nav>
+
+<!-- MAIN -->
+<main style="flex:1; max-width:1024px; margin:0 auto; padding:48px 16px; width:100%;">
+  <div class="fade-in" style="display:flex; flex-direction:column; gap:40px;">
+
+    <!-- HERO -->
+    <div style="text-align:center; max-width:672px; margin:0 auto; display:flex; flex-direction:column; gap:16px;">
+      <div id="heroBadge" style="display:inline-flex; align-items:center; padding:6px 16px; border-radius:999px; border:1px solid #E8E6DF; background:#FDFBF7; color:#D4AF37; font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin:0 auto; gap:8px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Gerador de Links de Localização
+      </div>
+      <h2 class="font-serif" style="font-size:clamp(32px,5vw,48px); font-weight:400; color:#1E1E24; letter-spacing:-0.02em; line-height:1.2;">Gere o link perfeito para o seu convite</h2>
+      <p style="color:#6B7280; font-size:15px; line-height:1.7; font-weight:300;">Insira o link do Google Maps, escolha a paleta de cores do seu convite e obtenha instantaneamente o link com Google Maps e Uber.</p>
+    </div>
+
+    <!-- GERADOR DE WHATSAPP -->
+    <section id="whatsAppPanel" style="display:none;max-width:760px;width:100%;margin:0 auto;background:#fff;border:1px solid #E8E6DF;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.06);overflow:hidden;">
+      <div style="padding:24px;border-bottom:1px solid #E8E6DF;"><h3 class="font-serif" style="font-size:24px;">Criar link personalizado de WhatsApp</h3><p style="font-size:13px;color:#6B7280;margin-top:6px;">Informe o telefone e a mensagem que deseja deixar pronta para envio.</p></div>
+      <div style="padding:24px;display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;flex-direction:column;gap:6px;"><label for="waPhone" style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#16a34a;">Número do WhatsApp</label><input id="waPhone" type="tel" inputmode="tel" placeholder="Ex.: (21) 99999-9999" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid #E8E6DF;font:14px inherit;box-sizing:border-box;"><small style="color:#9CA3AF;font-size:11px;">Inclua o DDD. O código do Brasil (+55) será adicionado se necessário.</small></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><label for="waMessage" style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#16a34a;">Mensagem personalizada</label><textarea id="waMessage" rows="5" placeholder="Olá! Tudo bem? Estou entrando em contato para..." style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid #E8E6DF;font:14px inherit;box-sizing:border-box;resize:vertical;"></textarea><div style="font-size:11px;color:#9CA3AF;">Você pode usar {nome} como marcador para o nome da pessoa, se desejar.</div></div>
+        <div style="display:flex;flex-direction:column;gap:6px;"><label for="waGenerated" style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#16a34a;">Link gerado</label><input id="waGenerated" readonly placeholder="Seu link aparecerá aqui" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid #E8E6DF;background:#F9FAFB;font:13px inherit;box-sizing:border-box;"></div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;"><button type="button" onclick="gerarLinkWhatsApp()" style="flex:1;min-width:180px;padding:13px;border:0;border-radius:10px;background:#16a34a;color:#fff;font-weight:600;cursor:pointer;">Gerar link</button><button type="button" onclick="copiarLinkWhatsApp()" style="flex:1;min-width:180px;padding:13px;border:1px solid #16a34a;border-radius:10px;background:#fff;color:#16a34a;font-weight:600;cursor:pointer;">Copiar link</button><button type="button" onclick="testarLinkWhatsApp()" style="flex:1;min-width:180px;padding:13px;border:1px solid #E8E6DF;border-radius:10px;background:#fff;color:#1E1E24;font-weight:600;cursor:pointer;">Testar link</button></div>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <div style="display:grid; grid-template-columns:1fr; gap:32px;" id="mainGrid">
+
+      <!-- FORMULÁRIO -->
+      <div id="colForm" style="grid-column:1 / -1;">
+        <div style="background:white; border-radius:16px; border:1px solid #E8E6DF; box-shadow:0 4px 12px rgba(0,0,0,0.07); overflow:hidden;">
+
+          <!-- Card Header -->
+          <div style="padding:24px 24px 20px; border-bottom:1px solid rgba(232,230,223,0.6);">
+            <h3 class="font-serif" style="font-size:24px; color:#1E1E24;">Informações do Evento e Local</h3>
+            <p style="font-size:12px; color:#9CA3AF; margin-top:4px;">Preencha os dados e escolha a identidade visual do seu convite.</p>
+          </div>
+
+          <!-- Card Body -->
+          <div style="padding:24px; display:flex; flex-direction:column; gap:20px;">
+
+            <!-- PALETA DE CORES -->
+            <div style="padding-bottom:20px; border-bottom:1px solid #E8E6DF;">
+              <label id="themeLabel" style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; display:flex; align-items:center; gap:6px; margin-bottom:10px; color:#D4AF37;">
+                <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+                Paleta de Cores do Convite
+              </label>
+              <div id="themeGrid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px;"></div>
+            </div>
+
+            <!-- NOME DA PESSOA -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label for="host" id="labelHost" style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#D4AF37;">Nome da pessoa</label>
+              <input type="text" id="host" placeholder="Ex: Ana & Carlos"
+                style="width:100%; padding:10px 16px; border-radius:12px; border:1px solid #E8E6DF; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box; transition:box-shadow 0.15s;">
+            </div>
+
+            <!-- DATA DO EVENTO (define a validade do link) -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label for="eventDate" style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#D4AF37;">Data do evento</label>
+              <input type="date" id="eventDate" required
+                style="width:100%; padding:10px 16px; border-radius:12px; border:1px solid #E8E6DF; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box; transition:box-shadow 0.15s;">
+              <p style="font-size:11px; color:#9CA3AF;">O link ficará ativo até 23h59, três dias após a data do evento (horário de Brasília).</p>
+            </div>
+
+            <!-- NOME DO ESPAÇO -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label for="venue" id="labelVenue" style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; display:flex; justify-content:space-between; align-items:center; color:#D4AF37;">
+                <span>Nome do Espaço / Local</span>
+                <span style="font-size:10px; color:#9CA3AF; font-weight:400; text-transform:uppercase;">(Opcional)</span>
+              </label>
+              <input type="text" id="venue" placeholder="Ex: Espaço Villa Bella"
+                style="width:100%; padding:10px 16px; border-radius:12px; border:1px solid #E8E6DF; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box; transition:box-shadow 0.15s;">
+            </div>
+
+            <!-- LINK DO MAPS -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label for="mapsUrl" id="labelMaps" style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#D4AF37;">Link do Google Maps (Cole o link do Maps aqui)</label>
+              <input type="url" id="mapsUrl" placeholder="Ex: https://maps.app.goo.gl/..."
+                style="width:100%; padding:10px 16px; border-radius:12px; border:1px solid #E8E6DF; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box; transition:box-shadow 0.15s;">
+              <p style="font-size:11px; color:#9CA3AF;">Cole um link do Google Maps ou digite o endereço no campo abaixo. Use “Buscar no Maps” para pesquisar o local.</p>
+            </div>
+
+            <!-- ENDEREÇO -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <label for="address" id="labelAddress" style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:#D4AF37;">Endereço Completo</label>
+              <input type="text" id="address" placeholder="Ex: Alameda das Orquídeas, 450 - São Paulo, SP"
+                style="width:100%; padding:10px 16px; border-radius:12px; border:1px solid #E8E6DF; font-size:14px; font-family:inherit; outline:none; box-sizing:border-box; transition:box-shadow 0.15s;">
+              <button type="button" onclick="buscarNoMaps()" style="align-self:flex-start;padding:9px 13px;border:1px solid #D4AF37;border-radius:9px;background:#fff;color:#9A7A18;font-size:12px;font-weight:600;cursor:pointer;">Buscar endereço no Google Maps ↗</button>
+            </div>
+
+          </div>
+
+          <!-- Card Footer -->
+          <div id="cardFooter" style="padding:20px 24px; border-top:1px solid #E8E6DF; background:#FDFBF7; display:flex; flex-direction:column; gap:12px; border-radius:0 0 16px 16px;">
+            <button id="btnCopiar" onclick="gerarECopiarLink()"
+              style="width:100%; padding:14px; border-radius:12px; background:#D4AF37; color:white; font-size:14px; font-weight:600; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s, transform 0.1s; font-family:inherit;">
+              <svg id="iconCopiar" width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <span id="txtCopiar">Gerar e Copiar Link</span>
+            </button>
+            <button id="btnWhats" onclick="enviarWhatsApp()"
+              style="width:100%; padding:14px; border-radius:12px; background:white; color:#16a34a; font-size:14px; font-weight:500; border:1px solid rgba(22,163,74,0.4); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s; font-family:inherit;">
+              <svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#16a34a"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.523 5.843L.057 23.428a.5.5 0 0 0 .615.615l5.61-1.473A11.947 11.947 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.898 0-3.667-.524-5.178-1.432l-.37-.217-3.833 1.005 1.024-3.742-.233-.376A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+              Enviar por WhatsApp
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
+      <div id="colHist" style="grid-column:1 / -1;">
+        <div style="background:white; border-radius:16px; border:1px solid #E8E6DF; box-shadow:0 2px 8px rgba(0,0,0,0.05); overflow:hidden; position:sticky; top:80px;">
+          <div style="padding:16px 20px; border-bottom:1px solid rgba(232,230,223,0.6); display:flex; align-items:center; justify-content:space-between;">
+            <h4 class="font-serif" style="font-size:14px; display:flex; align-items:center; gap:8px; color:#1E1E24;">
+              <svg id="histIcon" width="16" height="16" style="color:#D4AF37;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Histórico de Links
+            </h4>
+            <button id="btnLimpar" onclick="limparHistorico()" style="font-size:11px; color:#ef4444; background:none; border:none; cursor:pointer; display:none; align-items:center; gap:4px; font-family:inherit;">
+              <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              Limpar
+            </button>
+          </div>
+          <div id="historicoList" style="padding:16px; display:flex; flex-direction:column; gap:12px; max-height:400px; overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer style="border-top:1px solid #E8E6DF; background:white; padding:32px 16px; margin-top:64px; text-align:center; font-size:12px; color:#9CA3AF;">
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <img src="assets/logo.png" alt="Raiz & Pixel" style="height:56px; width:56px; border-radius:12px; object-fit:cover; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <p>Raiz & Pixel · Essência Criativa Digital.</p>
+  </div>
+</footer>
+
+<script>
+const THEMES = [
+  { id:'gold',     name:'Dourado Champagne',  primary:'#D4AF37', bgAccent:'#FDFBF7', border:'#E8E6DF' },
+  { id:'rose',     name:'Rosé Gold',           primary:'#C57B7B', bgAccent:'#FAF5F5', border:'#EAD6D6' },
+  { id:'emerald',  name:'Verde Esmeralda',     primary:'#2C6B56', bgAccent:'#F2F7F5', border:'#D0E1DC' },
+  { id:'midnight', name:'Azul Meia-Noite',     primary:'#2B4C7E', bgAccent:'#F3F6FA', border:'#D2E0F0' },
+  { id:'burgundy', name:'Marsala / Vinho',     primary:'#7A2E3B', bgAccent:'#FAF3F4', border:'#EAD2D5' },
+  { id:'silver',   name:'Prata / Elegante',    primary:'#718096', bgAccent:'#F4F6F8', border:'#D8DEE6' },
+  { id:'pink',     name:'Rosa / Delicado',     primary:'#D85C8A', bgAccent:'#FFF3F7', border:'#F1CADB' },
+  { id:'classic',  name:'Preto & Branco',      primary:'#222222', bgAccent:'#F5F5F5', border:'#D4D4D4' },
+  { id:'brown',    name:'Marrom / Terra',       primary:'#8A5A44', bgAccent:'#FBF5F0', border:'#E7D4C5' },
+];
+
+let temaAtual = 'gold';
+let copiando = false;
+const HIST_KEY = 'lokali_invitation_history';
+
+function getTheme(id){ return THEMES.find(t=>t.id===id)||THEMES[0]; }
+
+function aplicarTema(id){
+  temaAtual = id;
+  const t = getTheme(id);
+  document.getElementById('headerSub').style.color = t.primary;
+  document.getElementById('heroBadge').style.cssText = `display:inline-flex;align-items:center;padding:6px 16px;border-radius:999px;border:1px solid ${t.border};background:${t.bgAccent};color:${t.primary};font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin:0 auto;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);`;
+  document.getElementById('headerBadge').style.cssText = `font-size:12px;font-weight:500;display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;border:1px solid ${t.border};background:${t.bgAccent};color:${t.primary};box-shadow:0 1px 2px rgba(0,0,0,0.04);`;
+  document.getElementById('themeLabel').style.color = t.primary;
+  document.getElementById('histIcon').style.color = t.primary;
+  ['labelHost','labelVenue','labelMaps','labelAddress'].forEach(lid=>{
+    const el=document.getElementById(lid); if(el) el.style.color=t.primary;
+  });
+  document.getElementById('btnCopiar').style.background = t.primary;
+  document.getElementById('cardFooter').style.cssText = `padding:20px 24px;border-top:1px solid ${t.border};background:${t.bgAccent};display:flex;flex-direction:column;gap:12px;border-radius:0 0 16px 16px;`;
+  document.querySelectorAll('.theme-btn').forEach(btn=>{
+    const bid=btn.dataset.id;
+    const bt=getTheme(bid);
+    if(bid===id){
+      btn.style.borderColor=t.primary; btn.style.background=t.bgAccent;
+      btn.style.outline=`2px solid ${t.primary}`; btn.style.outlineOffset='2px'; btn.style.fontWeight='600';
+    } else {
+      btn.style.borderColor='#E8E6DF'; btn.style.background='white';
+      btn.style.outline='none'; btn.style.fontWeight='400';
+    }
+  });
+  document.querySelectorAll('input').forEach(inp=>{
+    inp.onfocus = ()=>inp.style.boxShadow=`0 0 0 2px ${t.primary}55`;
+    inp.onblur  = ()=>inp.style.boxShadow='';
+  });
+  renderHistorico();
+}
+
+function renderThemeGrid(){
+  const grid=document.getElementById('themeGrid');
+  grid.innerHTML='';
+
+  // Responsive cols via JS
+  const cols = window.innerWidth >= 640 ? 5 : 3;
+  grid.style.gridTemplateColumns = `repeat(${cols},1fr)`;
+
+  THEMES.forEach(t=>{
+    const btn=document.createElement('button');
+    btn.type='button'; btn.dataset.id=t.id; btn.className='theme-btn';
+    btn.style.cssText='display:flex;flex-direction:column;align-items:center;padding:12px;border-radius:12px;border:1px solid #E8E6DF;background:white;cursor:pointer;transition:all 0.15s;font-family:inherit;';
+    btn.innerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:${t.primary};margin-bottom:6px;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></div><span style="font-size:10px;text-align:center;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${t.name.split('/')[0].trim()}</span>`;
+    btn.onclick=()=>aplicarTema(t.id);
+    grid.appendChild(btn);
+  });
+
+  // Grid responsivo para histórico/formulário
+  if(window.innerWidth >= 1024){
+    document.getElementById('mainGrid').style.gridTemplateColumns='1fr 1fr 1fr';
+    document.getElementById('colForm').style.gridColumn='1 / 3';
+    document.getElementById('colHist').style.gridColumn='3 / 4';
+  }
+}
+
+function extrairEndereco(url){
+  try{
+    const u=new URL(url);
+    const q=u.searchParams.get('query')||u.searchParams.get('q')||u.searchParams.get('destination')||u.searchParams.get('daddr');
+    if(q) return decodeURIComponent(q.replace(/\+/g,' '));
+    const m=u.pathname.match(/\/place\/([^/]+)/i);
+    if(m) return decodeURIComponent(m[1].replace(/\+/g,' ')).replace(/\s*@.*$/,'').trim();
+  }catch{}
+  return '';
+}
+
+async function gerarLink(){
+  const data={
+    type:'location',
+    payload:{v:document.getElementById('venue').value.trim(),a:document.getElementById('address').value.trim(),m:document.getElementById('mapsUrl').value.trim(),h:document.getElementById('host').value.trim(),c:temaAtual,e:document.getElementById('eventDate').value}
+  };
+  const response=await fetch('/api/links',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const result=await response.json();
+  if(!response.ok || !result.url) throw new Error(result.error||'Não foi possível criar o link curto.');
+  return result.url;
+}
+
+async function gerarECopiarLink(){
+  const host=document.getElementById('host').value.trim();
+  const address=document.getElementById('address').value.trim();
+  if(!host){ showToast('Informe o nome da pessoa para gerar o link.','error'); return; }
+  if(!document.getElementById('eventDate').value){ showToast('Informe a data do evento para definir a validade do link.','error'); document.getElementById('eventDate').focus(); return; }
+  if(!address){ showToast('Preencha o endereço ou pesquise no Google Maps.','error'); document.getElementById('address').focus(); return; }
+  const btn=document.getElementById('btnCopiar'); btn.disabled=true; const oldText=document.getElementById('txtCopiar').textContent; document.getElementById('txtCopiar').textContent='Gerando link curto...';
+  try{
+    const link=await gerarLink();
+    await navigator.clipboard.writeText(link);
+    salvarHistorico(link);
+    showToast('Link curto gerado e copiado!','success');
+    document.getElementById('txtCopiar').textContent='Link Copiado!';
+    setTimeout(()=>{document.getElementById('txtCopiar').textContent='Gerar e Copiar Link';},2500);
+  }catch(e){showToast(e.message||'Erro ao gerar link. Verifique a configuração do servidor.','error');}
+  finally{btn.disabled=false; if(document.getElementById('txtCopiar').textContent==='Gerando link curto...')document.getElementById('txtCopiar').textContent=oldText;}
+}
+
+async function enviarWhatsApp(){
+  const host=document.getElementById('host').value.trim();
+  if(!host){ showToast('Informe o nome da pessoa para gerar o link.','error'); return; }
+  if(!document.getElementById('eventDate').value){ showToast('Informe a data do evento para definir a validade do link.','error'); document.getElementById('eventDate').focus(); return; }
+  try{const link=await gerarLink();const msg=encodeURIComponent(`Olá! Preparamos um guia de chegada especial com mapa e Uber para o evento *${host}*:\n\n${link}`);window.open(`https://api.whatsapp.com/send?text=${msg}`,'_blank');salvarHistorico(link);}
+  catch(e){showToast(e.message||'Erro ao gerar link. Verifique a configuração do servidor.','error');}
+}
+
+function alternarAba(aba){
+  const local=aba==='localizacao';
+  document.getElementById('mainGrid').style.display=local?'grid':'none';
+  document.getElementById('whatsAppPanel').style.display=local?'none':'block';
+  document.getElementById('tabLocalizacao').style.cssText=`padding:10px 16px;border-radius:10px;border:1px solid ${local?'#D4AF37':'#E8E6DF'};background:${local?'#D4AF37':'#fff'};color:${local?'#fff':'#1E1E24'};font-weight:600;cursor:pointer;`;
+  document.getElementById('tabWhatsApp').style.cssText=`padding:10px 16px;border-radius:10px;border:1px solid ${!local?'#16a34a':'#E8E6DF'};background:${!local?'#16a34a':'#fff'};color:${!local?'#fff':'#1E1E24'};font-weight:600;cursor:pointer;`;
+  document.querySelector('main h2').textContent=local?'Gere o link perfeito para o seu convite':'Crie links personalizados para WhatsApp';
+  document.querySelector('main .fade-in > div:nth-child(1) p').textContent=local?'Insira o endereço ou link do Google Maps e obtenha um link curto com Google Maps e Uber.':'Gere um link wa.me com o número e a mensagem que você personalizar.';
+}
+function buscarNoMaps(){
+  const url=document.getElementById('mapsUrl').value.trim();
+  const address=document.getElementById('address').value.trim();
+  if(url && /^https?:\/\//i.test(url)){window.open(url,'_blank','noopener');return;}
+  if(address){window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(address),'_blank','noopener');return;}
+  showToast('Digite um endereço ou cole o link do Google Maps primeiro.','error');
+}
+function gerarLinkWhatsApp(){
+  let phone=document.getElementById('waPhone').value.replace(/\D/g,'');
+  if(phone.startsWith('0')) phone=phone.slice(1);
+  if(phone && !phone.startsWith('55')) phone='55'+phone;
+  if(phone.length<12 || phone.length>13){showToast('Informe um número válido com DDD.','error');return;}
+  const message=document.getElementById('waMessage').value.trim();
+  if(!message){showToast('Escreva a mensagem personalizada.','error');return;}
+  const link='https://wa.me/'+phone+'?text='+encodeURIComponent(message);
+  document.getElementById('waGenerated').value=link;
+  showToast('Link de WhatsApp gerado!','success');
+}
+async function copiarLinkWhatsApp(){const field=document.getElementById('waGenerated');if(!field.value)gerarLinkWhatsApp();if(field.value){try{await navigator.clipboard.writeText(field.value);showToast('Link de WhatsApp copiado!','success');}catch{field.select();document.execCommand('copy');showToast('Link copiado!','success');}}}
+function testarLinkWhatsApp(){const field=document.getElementById('waGenerated');if(!field.value)gerarLinkWhatsApp();if(field.value)window.open(field.value,'_blank','noopener');}
+
+function showToast(msg, type='success'){
+  const c=document.getElementById('toastContainer');
+  const toast=document.createElement('div');
+  const bg = type==='success' ? '#16a34a' : '#ef4444';
+  toast.className='toast';
+  toast.style.cssText=`pointer-events:auto;padding:12px 16px;border-radius:12px;background:${bg};color:white;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-family:inherit;`;
+  const icon = type==='success'
+    ? `<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 12 4 9"/></svg>`
+    : `<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  toast.innerHTML=icon+msg;
+  c.appendChild(toast);
+  setTimeout(()=>{ toast.classList.add('hide'); setTimeout(()=>toast.remove(),300); },3000);
+}
+
+function carregarHistorico(){ try{ return JSON.parse(localStorage.getItem(HIST_KEY))||[]; }catch{ return []; } }
+
+function salvarHistorico(link){
+  const hist=carregarHistorico();
+  hist.unshift({
+    event:{
+      host:document.getElementById('host').value.trim(),
+      venue:document.getElementById('venue').value.trim(),
+      address:document.getElementById('address').value.trim(),
+      mapsUrl:document.getElementById('mapsUrl').value.trim(),
+      themeColor:temaAtual,
+      eventDate:document.getElementById('eventDate').value
+    },
+    link,
+    createdAt:new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+  });
+  if(hist.length>10) hist.pop();
+  localStorage.setItem(HIST_KEY,JSON.stringify(hist));
+  renderHistorico();
+}
+
+function limparHistorico(){
+  localStorage.removeItem(HIST_KEY);
+  renderHistorico();
+  showToast('Histórico limpo com sucesso.','success');
+}
+
+function carregarDoHistorico(ev){
+  document.getElementById('host').value=ev.host||'';
+  document.getElementById('venue').value=ev.venue||'';
+  document.getElementById('address').value=ev.address||'';
+  document.getElementById('mapsUrl').value=ev.mapsUrl||'';
+  document.getElementById('eventDate').value=ev.eventDate||'';
+  aplicarTema(ev.themeColor||'gold');
+  showToast('Dados carregados.','success');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderHistorico(){
+  const hist=carregarHistorico();
+  const container=document.getElementById('historicoList');
+  const btnLimpar=document.getElementById('btnLimpar');
+  const t=getTheme(temaAtual);
+  if(hist.length===0){
+    container.innerHTML=`<p style="font-size:12px;color:#9CA3AF;text-align:center;padding:16px;">Nenhum link gerado recentemente. Ao copiar ou gerar um link, ele ficará salvo aqui no seu navegador!</p>`;
+    btnLimpar.style.display='none'; return;
+  }
+  btnLimpar.style.display='flex';
+  container.innerHTML='';
+  hist.forEach((item,idx)=>{
+    const div=document.createElement('div');
+    div.style.cssText=`padding:12px;border-radius:12px;border:1px solid ${t.border};background:${t.bgAccent};font-size:12px;`;
+    const safeEv = JSON.stringify(item.event).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
+    const safeLink = item.link.replace(/'/g,"\\'");
+    div.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+        <span style="font-weight:600;color:#1E1E24;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">${item.event.host||'—'}</span>
+        <span style="font-size:10px;color:#9CA3AF;flex-shrink:0;">${item.createdAt}</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick='carregarDoHistorico(${safeEv})'
+          style="height:28px;padding:0 12px;font-size:11px;border-radius:8px;border:1px solid ${t.primary};color:${t.primary};background:white;cursor:pointer;font-weight:500;font-family:inherit;">Carregar</button>
+        <button onclick="navigator.clipboard.writeText('${safeLink}').then(()=>showToast('Link copiado do histórico!','success'))"
+          style="height:28px;padding:0 12px;font-size:11px;border-radius:8px;border:none;color:#1E1E24;background:transparent;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;">
+          <svg width="12" height="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar Link
+        </button>
+      </div>`;
+    container.appendChild(div);
+  });
+}
+
+// Expande link curto e extrai endereço
+async function extrairEnderecoAsync(url) {
+  const direto = extrairEndereco(url);
+  if (direto) return direto;
+  try {
+    const respLocal = await fetch('/api/resolve-maps?url=' + encodeURIComponent(url));
+    const localData = await respLocal.json();
+    if (localData && localData.address) {
+      const mapsField = document.getElementById('mapsUrl');
+      if (localData.url && localData.url.startsWith('https://')) mapsField.value = localData.url;
+      return localData.address;
+    }
+  } catch {}
+  if (/goo\.gl|maps\.app/i.test(url)) {
+    try {
+      const resp = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent(url));
+      const data = await resp.json();
+      const finalUrl = data?.status?.url || '';
+      if (finalUrl && finalUrl !== url) {
+        const end = extrairEndereco(finalUrl);
+        if (end) return end;
+      }
+      const html = data?.contents || '';
+      const og = html.match(/<meta[^>]+property="og:title"[^>]+content="([^"]+)"/i);
+      if (og && og[1]) return og[1].replace(/\s*-\s*Google Maps$/i,'').trim();
+    } catch {}
+  }
+  return '';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  renderThemeGrid();
+  aplicarTema('gold');
+  renderHistorico();
+
+  let extraTimer = null;
+  document.getElementById('mapsUrl').addEventListener('input', function(){
+    const url = this.value.trim();
+    if (!url) return;
+    clearTimeout(extraTimer);
+    const addrField = document.getElementById('address');
+    const direto = extrairEndereco(url);
+    if (direto && !addrField.value) { addrField.value = direto; return; }
+    extraTimer = setTimeout(async () => {
+      if (addrField.value) return;
+      addrField.placeholder = 'Buscando endereço...';
+      const end = await extrairEnderecoAsync(url);
+      addrField.placeholder = 'Ex: Alameda das Orquídeas, 450 - São Paulo, SP';
+      if (end && !addrField.value) addrField.value = end;
+    }, 600);
+  });
+
+  window.addEventListener('resize',()=>{
+    const cols = window.innerWidth >= 640 ? 5 : 3;
+    document.getElementById('themeGrid').style.gridTemplateColumns=`repeat(${cols},1fr)`;
+    if(window.innerWidth >= 1024){
+      document.getElementById('mainGrid').style.gridTemplateColumns='1fr 1fr 1fr';
+      document.getElementById('colForm').style.gridColumn='1 / 3';
+      document.getElementById('colHist').style.gridColumn='3 / 4';
+    } else {
+      document.getElementById('mainGrid').style.gridTemplateColumns='1fr';
+      document.getElementById('colForm').style.gridColumn='1 / -1';
+      document.getElementById('colHist').style.gridColumn='1 / -1';
+    }
+  });
+});
+</script>
+</body>
+</html>

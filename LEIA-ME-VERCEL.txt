@@ -1,0 +1,33 @@
+RAIZ & PIXEL — GERADOR DE LINKS PARA VERCEL
+
+O QUE ESTA VERSÃO FAZ
+- Mantém o gerador de localização e a aba de link personalizado para WhatsApp.
+- Permite digitar o endereço ou colar um link do Google Maps.
+- Gera links curtos no formato /l/XXXXXXXX.
+- Guarda os dados dos links no Vercel Blob privado; não usa MySQL nem outro banco SQL.
+- Exige a data do evento e encerra o acesso ao link à meia-noite de Brasília depois dos três dias completos seguintes ao evento.
+- Links expirados mostram uma mensagem explicativa.
+
+IMPORTANTE SOBRE ARMAZENAMENTO
+O Vercel Blob é um serviço de armazenamento persistente, separado dos arquivos temporários das funções. Não é banco SQL, mas é um serviço de armazenamento da Vercel e pode ter limites de uso conforme o plano. Os registros expirados deixam de abrir mesmo que ainda estejam guardados no Blob. Esta versão não apaga automaticamente os arquivos expirados; isso evita remover dados por engano e não afeta a expiração funcional.
+
+COMO PUBLICAR
+1. Descompacte este ZIP no computador.
+2. Crie um repositório no GitHub e envie todos os arquivos e pastas desta pasta para ele (incluindo api/, assets/, package.json e vercel.json). Não envie tokens ou senhas.
+3. Entre em https://vercel.com/dashboard e escolha Add New → Project.
+4. Importe o repositório GitHub. Framework Preset: Other; Root Directory: ./; Build Command e Output Directory podem ficar vazios (site estático com funções API).
+5. Antes de testar os links, abra o projeto na Vercel → Storage → Create Database → Blob. Escolha acesso Private e conecte o Blob a este projeto. A Vercel deve disponibilizar BLOB_READ_WRITE_TOKEN nas variáveis de ambiente do projeto.
+6. Se a variável tiver sido adicionada depois da primeira implantação, faça Redeploy para que a função a receba.
+7. Abra o domínio .vercel.app do projeto e teste criar um link de localização com uma data de evento futura.
+8. Abra o link em uma janela anônima. Teste também um registro com data antiga em ambiente de teste para confirmar a mensagem de expiração.
+
+DATA DE EXPIRAÇÃO
+Se o evento for em 20/10, o link fica ativo durante 21, 22 e 23/10 e expira às 00:00 de 24/10, horário de Brasília.
+
+OBSERVAÇÕES
+- A logo e o favicon atuais são provisórios; serão trocados quando a nova logo for enviada.
+- A aba de WhatsApp gera links wa.me diretamente; não precisa armazenar esses links no servidor.
+- A extração automática de endereço depende do formato de compartilhamento do Google Maps. Se o link não revelar o endereço, preencha o campo manualmente.
+- O histórico de links do painel fica no armazenamento local do navegador em que foram criados; ele não sincroniza entre dispositivos.
+- Antes de substituir a versão antiga, preserve-a e não apague arquivos/links antigos que ainda possam estar em uso. Os links criados por esta versão usam o armazenamento novo e não herdam automaticamente registros da hospedagem antiga.
+- Esta pasta não contém credenciais. Nunca publique BLOB_READ_WRITE_TOKEN em arquivos HTML ou no repositório.

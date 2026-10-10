@@ -1,0 +1,19 @@
+{
+  "rewrites": [
+    {
+      "source": "/l/:id",
+      "destination": "/convite.html?id=:id"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ]
+}

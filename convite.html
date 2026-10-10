@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Localização do Evento • Raiz & Pixel</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: "Plus Jakarta Sans", sans-serif; background: #F9F8F6; color: #1E1E24; margin: 0; }
+    .font-serif { font-family: "Playfair Display", serif; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fade-in { animation: fadeIn 0.6s ease; }
+  </style>
+</head>
+<body style="min-height:100vh; display:flex; flex-direction:column; background:#F9F8F6;">
+
+<!-- HEADER -->
+<header style="border-bottom:1px solid #E8E6DF; background:rgba(255,255,255,0.9); backdrop-filter:blur(12px); position:sticky; top:0; z-index:50; box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+  <div style="max-width:1024px; margin:0 auto; padding:16px 24px; display:flex; align-items:center;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <img src="assets/logo.png" alt="Raiz & Pixel" style="height:48px; width:48px; border-radius:12px; object-fit:cover; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+      <div>
+        <h1 class="font-serif" style="font-size:20px; font-weight:700; color:#1E1E24; line-height:1.2;">Raiz & Pixel</h1>
+        <p id="headerSub" style="font-size:9px; letter-spacing:0.18em; text-transform:uppercase; font-weight:600; margin-top:2px; color:#D4AF37;">Localização para convites</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main style="flex:1; max-width:512px; margin:0 auto; padding:48px 16px; width:100%; box-sizing:border-box;">
+
+  <!-- CARD CONVITE -->
+  <div id="conviteCard" class="fade-in" style="background:white; border-radius:20px; border:1px solid #E8E6DF; box-shadow:0 20px 60px rgba(0,0,0,0.12); overflow:hidden; position:relative;">
+
+    <!-- Barra de cor no topo -->
+    <div id="topBar" style="height:6px; background:#D4AF37;"></div>
+
+    <!-- Conteúdo do card -->
+    <div id="cardContent" style="padding:32px 24px 24px; text-align:center;">
+
+      <!-- Badge -->
+      <div id="badge" style="display:inline-flex; align-items:center; justify-content:center; padding:4px 16px; border-radius:999px; border:1px solid #E8E6DF; background:#FDFBF7; font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px; color:#D4AF37; gap:6px;">
+        <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Localização do Evento
+      </div>
+
+      <!-- Nome da pessoa (host) -->
+      <h2 id="hostName" class="font-serif" style="font-size:clamp(22px,5vw,32px); font-weight:600; color:#1E1E24; letter-spacing:-0.01em; display:none; margin:0 0 4px;"></h2>
+
+      <!-- Nome do espaço (venue - só aparece se preenchido) -->
+      <p id="venueName" style="font-size:14px; font-weight:500; margin:0 0 16px; display:none;"></p>
+
+      <!-- Endereço -->
+      <div id="addressBox" style="margin-top:12px; padding:14px; border-radius:12px; border:1px solid #E8E6DF; background:white; box-shadow:0 1px 3px rgba(0,0,0,0.05); display:flex; align-items:center; justify-content:space-between; gap:12px; text-align:left;">
+        <div style="display:flex; align-items:flex-start; gap:8px; flex:1; min-width:0;">
+          <svg id="pinIcon" width="16" height="16" style="flex-shrink:0; margin-top:2px; color:#D4AF37;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="addressText" style="font-size:13px; color:#1E1E24; font-weight:500; line-height:1.5; word-break:break-word;">Carregando endereço...</span>
+        </div>
+        <button id="btnCopiarEnd" onclick="copiarEndereco()"
+          style="flex-shrink:0; padding:6px 14px; border-radius:8px; border:1px solid #D4AF37; background:white; color:#D4AF37; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; transition:background 0.15s; display:flex; align-items:center; gap:6px;">
+          <svg id="copyIcon" width="12" height="12" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="txtCopiarEnd">Copiar</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- BOTÕES DE AÇÃO -->
+    <div id="botoesAcao" style="padding:0 24px 24px; display:flex; flex-direction:column; gap:12px;">
+
+      <!-- Uber -->
+      <a id="uberBtn" href="#" target="_blank" rel="noopener noreferrer"
+        style="display:flex; align-items:center; justify-content:center; gap:12px; padding:14px 16px; border-radius:12px; border:1px solid black; background:black; color:white; text-decoration:none; transition:background 0.15s; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+        <div style="width:28px; height:28px; border-radius:50%; background:white; color:black; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:12px; letter-spacing:-0.05em; flex-shrink:0;">U</div>
+        <div style="text-align:left;">
+          <div style="font-size:9px; color:#a1a1aa; text-transform:uppercase; letter-spacing:0.1em; line-height:1;">Pedir carro</div>
+          <div style="font-weight:700; font-size:14px; letter-spacing:0.03em;">Uber</div>
+        </div>
+      </a>
+
+      <!-- Google Maps -->
+      <a id="mapsBtn" href="#" target="_blank" rel="noopener noreferrer"
+        style="display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 16px; border-radius:12px; border:1px solid #E8E6DF; font-size:13px; font-weight:600; text-decoration:none; transition:all 0.15s; box-shadow:0 1px 3px rgba(0,0,0,0.06); color:#D4AF37; background:#FDFBF7; border-color:#E8E6DF;">
+        <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Abrir no Google Maps
+      </a>
+
+      <!-- Mapa iframe -->
+      <div id="mapContainer" style="width:100%; height:400px; border-radius:12px; overflow:hidden; border:1px solid #E8E6DF; margin-top:8px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.05); position:relative; background:#f0f0f0;">
+        <!-- Loading -->
+        <div id="mapLoading" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#f5f5f5;z-index:1;">
+          <div style="text-align:center;color:#9CA3AF;font-size:13px;">
+            <svg width="32" height="32" style="margin:0 auto 8px;display:block;color:#D4AF37;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Carregando mapa...
+          </div>
+        </div>
+        <iframe id="mapIframe"
+          title="Mapa do local"
+          style="width:100%; height:100%; border:none; display:block;"
+          src="about:blank"
+          onload="this.style.opacity=1;document.getElementById('mapLoading').style.display='none';"
+          style="opacity:0; transition:opacity 0.3s;">
+        </iframe>
+      </div>
+
+    </div>
+
+    <!-- RODAPÉ DO CARD -->
+    <div id="cardFooter" style="padding:12px 24px; display:flex; align-items:center; justify-content:center; font-size:11px; color:#9CA3AF; border-top:1px solid #E8E6DF; background:#FDFBF7;">
+      Raiz & Pixel · Localização
+    </div>
+
+  </div>
+
+  <!-- TELA DE ERRO (quando não há parâmetro) -->
+  <div id="erroCard" class="fade-in" style="display:none; text-align:center; padding:48px 24px;">
+    <div style="width:64px; height:64px; border-radius:50%; background:#FEF3C7; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+      <svg width="32" height="32" style="color:#D4AF37;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h2 class="font-serif" style="font-size:22px; color:#1E1E24; margin-bottom:8px;">Link inválido ou incompleto</h2>
+    <p style="color:#6B7280; font-size:14px; margin-bottom:24px;">Verifique o link enviado pelo anfitrião ou gere um novo link de localização.</p>
+    <a href="/" style="display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:12px; background:#D4AF37; color:white; text-decoration:none; font-weight:600; font-size:14px;">
+      <svg width="14" height="14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Criar meu link
+    </a>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer style="border-top:1px solid #E8E6DF; background:white; padding:32px 16px; margin-top:32px; text-align:center; font-size:12px; color:#9CA3AF;">
+  <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+    <img src="assets/logo.png" alt="Raiz & Pixel" style="height:48px; width:48px; border-radius:12px; object-fit:cover; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+    <p>Raiz & Pixel · Essência Criativa Digital.</p>
+  </div>
+</footer>
+
+<script>
+const THEMES = {
+  gold:     { primary:'#D4AF37', bgAccent:'#FDFBF7', border:'#E8E6DF' },
+  rose:     { primary:'#C57B7B', bgAccent:'#FAF5F5', border:'#EAD6D6' },
+  emerald:  { primary:'#2C6B56', bgAccent:'#F2F7F5', border:'#D0E1DC' },
+  midnight: { primary:'#2B4C7E', bgAccent:'#F3F6FA', border:'#D2E0F0' },
+  burgundy: { primary:'#7A2E3B', bgAccent:'#FAF3F4', border:'#EAD2D5' },
+  silver:   { primary:'#718096', bgAccent:'#F4F6F8', border:'#D8DEE6' },
+  pink:     { primary:'#D85C8A', bgAccent:'#FFF3F7', border:'#F1CADB' },
+  classic:  { primary:'#222222', bgAccent:'#F5F5F5', border:'#D4D4D4' },
+  brown:    { primary:'#8A5A44', bgAccent:'#FBF5F0', border:'#E7D4C5' },
+};
+
+let enderecoAtual = '';
+
+function copiarEndereco(){
+  if(!enderecoAtual) return;
+  navigator.clipboard.writeText(enderecoAtual).then(()=>{
+    const btn=document.getElementById('btnCopiarEnd');
+    const txt=document.getElementById('txtCopiarEnd');
+    const ico=document.getElementById('copyIcon');
+    txt.textContent='Copiado!';
+    ico.innerHTML='<polyline points="20 6 9 12 4 9"/>';
+    setTimeout(()=>{
+      txt.textContent='Copiar';
+      ico.innerHTML='<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
+    },2000);
+  });
+}
+
+function aplicarTema(t){
+  document.getElementById('topBar').style.background = t.primary;
+  document.getElementById('headerSub').style.color = t.primary;
+  document.getElementById('badge').style.cssText = `display:inline-flex;align-items:center;justify-content:center;padding:4px 16px;border-radius:999px;border:1px solid ${t.border};background:${t.bgAccent};font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;color:${t.primary};gap:6px;`;
+  document.getElementById('venueName').style.color = t.primary;
+  document.getElementById('pinIcon').style.color = t.primary;
+  document.getElementById('btnCopiarEnd').style.borderColor = t.primary;
+  document.getElementById('btnCopiarEnd').style.color = t.primary;
+  document.getElementById('addressBox').style.borderColor = t.border;
+  document.getElementById('mapsBtn').style.cssText = `display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 16px;border-radius:12px;border:1px solid ${t.border};font-size:13px;font-weight:600;text-decoration:none;transition:all 0.15s;box-shadow:0 1px 3px rgba(0,0,0,0.06);color:${t.primary};background:${t.bgAccent};`;
+  document.getElementById('cardFooter').style.cssText = `padding:12px 24px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9CA3AF;border-top:1px solid ${t.border};background:${t.bgAccent};`;
+  document.getElementById('conviteCard').style.borderColor = t.border;
+}
+
+async function init(){
+  const params = new URLSearchParams(window.location.search);
+  const encoded = params.get('p');
+  const shortId = params.get('id');
+
+  if(!encoded && shortId){
+    try {
+      const response = await fetch('/api/links?id=' + encodeURIComponent(shortId));
+      const result = await response.json();
+      if(!response.ok || !result.payload) throw new Error(result.error || 'Link não encontrado.');
+      renderDados(result.payload);
+      return;
+    } catch(error) {
+      console.error(error);
+      document.getElementById('conviteCard').style.display='none';
+      document.getElementById('erroCard').style.display='block';
+      const errorText=document.querySelector('#erroCard p');
+      if(errorText) errorText.textContent=error.message || 'Este link não está disponível.';
+      const errorTitle=document.querySelector('#erroCard h2');
+      if(errorTitle && /expirad/i.test(error.message||'')) errorTitle.textContent='Este link expirou';
+      return;
+    }
+  }
+
+  if(!encoded){
+    document.getElementById('conviteCard').style.display='none';
+    document.getElementById('erroCard').style.display='block';
+    return;
+  }
+
+  try{
+    // Decode base64url → JSON
+    const b64 = encoded.replace(/-/g,'+').replace(/_/g,'/') + '='.repeat((4 - encoded.length % 4) % 4);
+    const bytes = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+    const json = JSON.parse(new TextDecoder().decode(bytes));
+    renderDados(json);
+
+  } catch(e){
+    console.error(e);
+    document.getElementById('conviteCard').style.display='none';
+    document.getElementById('erroCard').style.display='block';
+  }
+}
+
+function renderDados(json){
+  try {
+    const host       = (json.h || '').trim();
+    const venue      = (json.v || '').trim();
+    const address    = (json.a || '').trim();
+    const mapsUrl    = (json.m || '').trim();
+    const themeColor = json.c || 'gold';
+    const theme      = THEMES[themeColor] || THEMES.gold;
+
+    // Aplicar tema
+    aplicarTema(theme);
+
+    // Nome da pessoa
+    if(host){
+      const el = document.getElementById('hostName');
+      el.textContent = host;
+      el.style.display = 'block';
+    }
+
+    // Nome do espaço (só se preenchido)
+    if(venue){
+      const el = document.getElementById('venueName');
+      el.textContent = venue;
+      el.style.display = 'block';
+    }
+
+    // Endereço
+    enderecoAtual = address;
+    document.getElementById('addressText').textContent = address || '(endereço não informado)';
+
+    // Link do Uber
+    const encodedAddr = encodeURIComponent(address || venue);
+    const encodedVenue = encodeURIComponent(venue);
+    document.getElementById('uberBtn').href =
+      `https://m.uber.com/ul/?action=setPickup&dropoff[formatted_address]=${encodedAddr}&dropoff[nickname]=${encodedVenue}`;
+
+    // Link do Maps
+    const validMaps = mapsUrl && mapsUrl.startsWith('http') && !mapsUrl.includes('example.com');
+    document.getElementById('mapsBtn').href = validMaps
+      ? mapsUrl
+      : `https://maps.google.com/?q=${encodedAddr}`;
+
+    // Mapa via OpenStreetMap — geocodifica com Nominatim e exibe pin
+    carregarMapa(address, validMaps ? mapsUrl : '');
+
+    // Título da página
+    if(host) document.title = `Localização · ${host} • Raiz & Pixel`;
+  } catch(e) {
+    console.error(e);
+    document.getElementById('conviteCard').style.display='none';
+    document.getElementById('erroCard').style.display='block';
+  }
+}
+
+async function carregarMapa(address, mapsUrl) {
+  const iframe = document.getElementById('mapIframe');
+  const loading = document.getElementById('mapLoading');
+
+  if (!address) {
+    document.getElementById('mapContainer').style.display = 'none';
+    return;
+  }
+
+  try {
+    // Geocodifica o endereço com Nominatim (OpenStreetMap, gratuito, sem API key)
+    const resp = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
+      { headers: { 'Accept-Language': 'pt-BR,pt;q=0.9' } }
+    );
+    const data = await resp.json();
+
+    if (data && data.length > 0) {
+      const lat = parseFloat(data[0].lat);
+      const lon = parseFloat(data[0].lon);
+      const delta = 0.004; // nível de zoom — menor = mais perto
+      const bbox = `${lon-delta},${lat-delta},${lon+delta},${lat+delta}`;
+      iframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+    } else {
+      // Se Nominatim não encontrou, fallback para Google Maps embed
+      iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+    }
+  } catch {
+    // Fallback para Google Maps se Nominatim falhar
+    iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
